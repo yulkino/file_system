@@ -6,7 +6,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Devcolibri.com</title>
+    <title>file system</title>
 </head>
 <body>
 <p><%=new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date())%></p>
@@ -17,12 +17,15 @@
 
     Directory directory = (Directory) request.getAttribute("page");
 %>
-    <h2><%=directory.ParentDirectoryPath.FullPath%></h2>
+    <div align="right">
+        <a href="logout" style="font-size: 14px">sign out</a>
+    </div>
+    <h2><%=directory.ParentDirectory.FullPath%></h2>
     <hr>
 <%
-    if (directory.ParentDirectoryPath.ParentPath != null) {
+    if (directory.ParentDirectory.ParentPath != null) {
 %>
-       <h3><img src=<%=FolderUpIcon%> width="23"> <a href="./?path=<%=directory.ParentDirectoryPath.ParentPath%>">Вверх</a></h3>
+       <h3><img src=<%=FolderUpIcon%> width="23"> <a href="./?path=<%=directory.ParentDirectory.ParentPath%>">Вверх</a></h3>
 <%
     }
 %>

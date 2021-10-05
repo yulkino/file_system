@@ -6,11 +6,11 @@ import java.util.List;
 
 public class Directory {
 
-    public FileModel ParentDirectoryPath;
+    public FileModel ParentDirectory;
     public List<FileModel> Children = new ArrayList<>();
 
     public Directory(File directory) {
-        ParentDirectoryPath = new FileModel(directory);
+        ParentDirectory = new FileModel(directory);
         for (File child : directory.listFiles()) {
             Children.add(new FileModel(child));
         }
