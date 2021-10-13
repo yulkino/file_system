@@ -2,6 +2,7 @@ package com.example.file_system.servlets;
 
 import com.example.file_system.accounts.AccountService;
 import com.example.file_system.accounts.UserProfile;
+import com.example.file_system.dbService.DBException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -31,18 +32,26 @@ public class LoginServlet extends HttpServlet {
             req.getRequestDispatcher("loginpage.jsp").forward(req, resp);
             return;
         }
-        UserProfile up = accountService.GetUserProfile(nickname);
-        if(accountService.IsNotUserExist(nickname)){
-            req.setAttribute("error", "User not found");
-            req.getRequestDispatcher("loginpage.jsp").forward(req, resp);
-            return;
+        UserProfile userProfile = null;
+        try {
+            userProfile = accountService.GetUserProfile(nickname);
+            if(accountService.IsNotUserExist(nickname)){
+                req.setAttribute("error", "User not found");
+                req.getRequestDispatcher("loginpage.jsp").forward(req, resp);
+                return;
+            }
+
+            if(!userProfile.getPassword().equals(pass)){
+                req.setAttribute("error", "Make sure that you entered right password");
+                req.getRequestDispatcher("loginpage.jsp").forward(req, resp);
+                return;
+            }
+
+            accountService.AddLoginToSession(userProfile,req.getSession());
+        } catch (DBException e) {
+            e.printStackTrace();
         }
-        if(!up.getPassword().equals(pass)){
-            req.setAttribute("error", "Make sure that you entered right password");
-            req.getRequestDispatcher("loginpage.jsp").forward(req, resp);
-            return;
-        }
-        accountService.AddLoginToSession(up,req.getSession());
+
         String path = "http://localhost:8080/file_system_war_exploded/?path=D:/Users/" + nickname;
         resp.sendRedirect(path);
     }

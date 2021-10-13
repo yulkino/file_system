@@ -46,17 +46,4 @@ public class MainServlet extends HttpServlet {
             resp.sendRedirect(path);
         }
     }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-
-    }
-
-    @Override
-    public void doDelete(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException{
-        //accountService.DeleteSession(req.getSession());
-    }
-
 }

@@ -4,15 +4,17 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.example.file_system.dbService.DBException;
+import com.example.file_system.dbService.DBService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AccountService {
-    private static Map<String, UserProfile> loginToProfile = new HashMap<String, UserProfile>();
-    private static Map<String, HttpSession> loginToSession = new HashMap<String, HttpSession>();
+    private static final DBService loginToProfile = new DBService();
+    private static final Map<String, HttpSession> loginToSession = new HashMap<>();
 
-    public void AddLoginToProfile(UserProfile userProfile){
-        loginToProfile.put(userProfile.getNickName(), userProfile);
+    public void AddLoginToProfile (UserProfile userProfile) throws DBException {
+        loginToProfile.addUser(new UserProfile(userProfile.getNickName(), userProfile.getPassword(), userProfile.getEmail()));
     }
 
     public void AddLoginToSession(UserProfile userProfile, HttpSession httpSession){
@@ -23,8 +25,8 @@ public class AccountService {
         loginToSession.remove(GetUserLogin(sessionId));
     }
 
-    public boolean IsNotUserExist(String nickName){
-        return !loginToProfile.containsKey(nickName);
+    public boolean IsNotUserExist(String nickName) throws DBException {
+        return loginToProfile.getUser(nickName) == null;
     }
 
     public String GetUserLogin(String session){
@@ -41,7 +43,7 @@ public class AccountService {
         return loginToSession.get(nickName).equals(httpSession);
     }
 
-    public UserProfile GetUserProfile(String nickname){
-        return loginToProfile.get(nickname);
+    public UserProfile GetUserProfile(String nickname) throws DBException {
+        return loginToProfile.getUser(nickname);
     }
 }

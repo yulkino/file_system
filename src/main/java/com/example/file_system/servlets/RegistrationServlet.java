@@ -2,6 +2,7 @@ package com.example.file_system.servlets;
 
 import com.example.file_system.accounts.AccountService;
 import com.example.file_system.accounts.UserProfile;
+import com.example.file_system.dbService.DBException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -35,20 +36,24 @@ public class RegistrationServlet extends HttpServlet {
             req.getRequestDispatcher("registrationpage.jsp").forward(req, resp);
             return;
         }
-        if(accountService.IsNotUserExist(nickname)){
-            UserProfile up = new UserProfile(nickname, req.getParameter("pass"), req.getParameter("email"));
-            accountService.AddLoginToProfile(up);
-            Path path = Paths.get("D:/Users/"+ nickname);
-            if(Files.notExists(path)){
-                File homeDir = new File(path.toString());
-                homeDir.mkdir();
+        try {
+            if(accountService.IsNotUserExist(nickname)){
+                UserProfile up = new UserProfile(nickname, req.getParameter("pass"), req.getParameter("email"));
+                accountService.AddLoginToProfile(up);
+                Path path = Paths.get("D:/Users/"+ nickname);
+                if(Files.notExists(path)){
+                    File homeDir = new File(path.toString());
+                    homeDir.mkdir();
+                }
+                accountService.AddLoginToSession(up, req.getSession());
+                String pathURL = "http://localhost:8080/file_system_war_exploded/?path=D:/Users/" + nickname;
+                resp.sendRedirect(pathURL);
+            }else{
+                req.setAttribute("error", "User already exist");
+                req.getRequestDispatcher("registrationpage.jsp").forward(req, resp);
             }
-            accountService.AddLoginToSession(up, req.getSession());
-            String pathURL = "http://localhost:8080/file_system_war_exploded/?path=D:/Users/" + nickname;
-            resp.sendRedirect(pathURL);
-        }else{
-            req.setAttribute("error", "User already exist");
-            req.getRequestDispatcher("registrationpage.jsp").forward(req, resp);
+        } catch (DBException e) {
+            e.printStackTrace();
         }
     }
 }
