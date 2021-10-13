@@ -14,6 +14,7 @@
     String FileIcon = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Google_Docs_logo_%282014-2020%29.svg/555px-Google_Docs_logo_%282014-2020%29.svg.png";
     String FolderIcon = "https://seeklogo.com/images/N/new-folder-logo-D68023CCD1-seeklogo.com.png";
     String FolderUpIcon = "https://cdn2.iconfinder.com/data/icons/3d-folder-plus-plus-1/128/folder-directory-file-arrow-upload-up-document-512.png";
+    String nickName = (String) request.getAttribute("nickname");
 
     Directory directory = (Directory) request.getAttribute("page");
 %>
@@ -25,7 +26,7 @@
 <%
     if (directory.ParentDirectory.ParentPath != null) {
 %>
-       <h3><img src=<%=FolderUpIcon%> width="23"> <a href="./?path=<%=directory.ParentDirectory.ParentPath%>">Вверх</a></h3>
+       <h3><img src=<%=FolderUpIcon%> width="23"> <a href="./?path=<%=directory.ParentDirectory.ParentPath%>&nickname=<%=nickName%>">Вверх</a></h3>
 <%
     }
 %>
@@ -50,7 +51,7 @@
             <%}%>
         </td>
         <td>
-            <a href="./?path=<%=child.FullPath%>"> <p><%=child.Name%></p></a>
+            <a href="./?path=<%=child.FullPath%>&nickname=<%=nickName%>"> <p><%=child.Name%></p></a>
         </td>
         <td><%
             if(child.IsFile){%>

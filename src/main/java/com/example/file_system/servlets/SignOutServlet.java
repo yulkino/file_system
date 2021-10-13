@@ -17,9 +17,12 @@ public class SignOutServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+            throws IOException {
         String sessionId = req.getSession().getId();
-        accountService.DeleteSession(sessionId);
+        String userName = accountService.GetUserName(sessionId);
+        while (accountService.IsSessionExist(userName)){
+            accountService.DeleteSession(userName);
+        }
         String pathURL = "http://localhost:8080/file_system_war_exploded/login";
         resp.sendRedirect(pathURL);
     }

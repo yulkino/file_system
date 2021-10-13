@@ -32,10 +32,10 @@ public class LoginServlet extends HttpServlet {
             req.getRequestDispatcher("loginpage.jsp").forward(req, resp);
             return;
         }
-        UserProfile userProfile = null;
+        UserProfile userProfile;
         try {
             userProfile = accountService.GetUserProfile(nickname);
-            if(accountService.IsNotUserExist(nickname)){
+            if(accountService.IsUserNotExist(nickname)){
                 req.setAttribute("error", "User not found");
                 req.getRequestDispatcher("loginpage.jsp").forward(req, resp);
                 return;
@@ -52,7 +52,7 @@ public class LoginServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        String path = "http://localhost:8080/file_system_war_exploded/?path=D:/Users/" + nickname;
+        String path = "http://localhost:8080/file_system_war_exploded/?path=D:/Users/" + nickname +"&nickname=" + nickname;
         resp.sendRedirect(path);
     }
 }

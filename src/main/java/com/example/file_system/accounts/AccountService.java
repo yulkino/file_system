@@ -21,26 +21,30 @@ public class AccountService {
         loginToSession.put(userProfile.getNickName(), httpSession);
     }
 
-    public void DeleteSession(String sessionId){
-        loginToSession.remove(GetUserLogin(sessionId));
+    public void DeleteSession(String userName){
+        loginToSession.remove(userName);
     }
 
-    public boolean IsNotUserExist(String nickName) throws DBException {
+    public boolean IsUserNotExist(String nickName) throws DBException {
         return loginToProfile.getUser(nickName) == null;
     }
 
-    public String GetUserLogin(String session){
+    public HttpSession GetSession(String login){
+        return loginToSession.get(login);
+    }
+
+    public String GetUserName(String sessionId){
         return loginToSession
                 .entrySet()
                 .stream()
-                .filter(s -> s.getValue().getId().equals(session))
+                .filter(s -> s.getValue().getId().equals(sessionId))
                 .findFirst()
                 .map(Map.Entry::getKey)
                 .orElse(null);
     }
 
-    public boolean IsSessionExist(String nickName, HttpSession httpSession){
-        return loginToSession.get(nickName).equals(httpSession);
+    public boolean IsSessionExist(String nickName){
+        return loginToSession.get(nickName) != null;
     }
 
     public UserProfile GetUserProfile(String nickname) throws DBException {

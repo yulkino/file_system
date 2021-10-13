@@ -37,7 +37,7 @@ public class RegistrationServlet extends HttpServlet {
             return;
         }
         try {
-            if(accountService.IsNotUserExist(nickname)){
+            if(accountService.IsUserNotExist(nickname)){
                 UserProfile up = new UserProfile(nickname, req.getParameter("pass"), req.getParameter("email"));
                 accountService.AddLoginToProfile(up);
                 Path path = Paths.get("D:/Users/"+ nickname);
