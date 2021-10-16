@@ -3,59 +3,72 @@ package com.example.file_system.dbService;
 import com.example.file_system.accounts.UserProfile;
 import com.example.file_system.dbService.usersDB.UsersDB;
 
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+
 
 public class DBService {
+    private static final String hibernate_show_sql = "true";
+    private static final String hibernate_hbm2ddl_auto = "validate";
 
-    private final Connection connection;
+    private final SessionFactory sessionFactory;
 
     public DBService() {
-        this.connection = getMysqlConnection();
+        Configuration configuration = getMySqlConfiguration();
+        sessionFactory = createSessionFactory(configuration);
     }
 
-    public UserProfile getUser(String nickName) throws DBException {
+
+    public UserProfile getUser(String name) throws DBException {
         try {
-            return (new UsersDB(connection).getUser(nickName));
-        } catch (SQLException e) {
+            Session session = sessionFactory.openSession();
+            UsersDB usersDB = new UsersDB(session);
+            UserProfile dataSet = usersDB.getUser(name);
+            session.close();
+            return dataSet;
+        } catch (HibernateException e) {
             throw new DBException(e);
         }
     }
 
-    public void addUser(UserProfile userProfile) throws DBException {
+    public long addUser(UserProfile userProfile) throws DBException {
         try {
-            connection.setAutoCommit(false);
-            UsersDB dbOperation = new UsersDB(connection);
-            dbOperation.createTable();
-            dbOperation.insertUser(userProfile);
-            connection.commit();
-        } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException ignore) {
-            }
+            Session session = sessionFactory.openSession();
+            Transaction transaction = session.beginTransaction();
+            UsersDB usersDB = new UsersDB(session);
+            long id = usersDB.insertUser(userProfile);
+            transaction.commit();
+            session.close();
+            return id;
+        } catch (HibernateException e) {
             throw new DBException(e);
-        } finally {
-            try {
-                connection.setAutoCommit(true);
-            } catch (SQLException ignore) {
-            }
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public static Connection getMysqlConnection() {
-        try {
-            DriverManager.registerDriver((Driver)Class.forName("com.mysql.cj.jdbc.Driver").newInstance());
+    private Configuration getMySqlConfiguration() {
+        Configuration configuration = new Configuration();
+        configuration.addAnnotatedClass(UserProfile.class);
 
-            String url = "jdbc:mysql://localhost:3306/filesystem?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=GMT";
+        configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
+        configuration.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
+        configuration.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/filesystem?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=GMT");
+        configuration.setProperty("hibernate.connection.username", "root");
+        configuration.setProperty("hibernate.connection.password", "admin");
+        configuration.setProperty("hibernate.show_sql", hibernate_show_sql);
+        configuration.setProperty("hibernate.hbm2ddl.auto", hibernate_hbm2ddl_auto);
+        return configuration;
+    }
 
-            return DriverManager.getConnection(url, "root", "admin");
-        } catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+    private static SessionFactory createSessionFactory(Configuration configuration) {
+        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
+        builder.applySettings(configuration.getProperties());
+        ServiceRegistry serviceRegistry = builder.build();
+        return configuration.buildSessionFactory(serviceRegistry);
     }
 }

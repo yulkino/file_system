@@ -28,10 +28,14 @@ public class MainServlet extends HttpServlet {
         String nickName = req.getParameter("nickname");
         HttpSession session = accountService.GetSession(nickName);
         if(session != null && session.getId().equals(sessionId)){
-            if(!path.contains("D:/Users/" + nickName)){
-                path = "D:/Users/" + nickName;
+            String homePath =  "D:/Users/" + nickName;
+            if(!path.startsWith(homePath)){
+                String url = "http://localhost:8080/file_system_war_exploded/?path=" + homePath + "&nickname=" + nickName;
+                resp.sendRedirect(url);
+                return;
             }
-             File file = new File(path);
+
+            File file = new File(path);
 
             if (file.isFile()) {
                 try (OutputStream out = resp.getOutputStream()) {

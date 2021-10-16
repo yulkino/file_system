@@ -14,7 +14,7 @@ public class AccountService {
     private static final Map<String, HttpSession> loginToSession = new HashMap<>();
 
     public void AddLoginToProfile (UserProfile userProfile) throws DBException {
-        loginToProfile.addUser(new UserProfile(userProfile.getNickName(), userProfile.getPassword(), userProfile.getEmail()));
+        loginToProfile.addUser(userProfile);
     }
 
     public void AddLoginToSession(UserProfile userProfile, HttpSession httpSession){

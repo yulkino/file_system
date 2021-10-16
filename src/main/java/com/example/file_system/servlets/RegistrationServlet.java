@@ -46,7 +46,7 @@ public class RegistrationServlet extends HttpServlet {
                     homeDir.mkdir();
                 }
                 accountService.AddLoginToSession(up, req.getSession());
-                String pathURL = "http://localhost:8080/file_system_war_exploded/?path=D:/Users/" + nickname;
+                String pathURL = "http://localhost:8080/file_system_war_exploded/?path=D:/Users/" + nickname + "&nickname=" + nickname;
                 resp.sendRedirect(pathURL);
             }else{
                 req.setAttribute("error", "User already exist");
